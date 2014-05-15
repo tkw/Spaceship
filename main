@@ -1,4 +1,4 @@
-#http://www.codeskulptor.org/#user32_GBzOZWqsLI_0.py
+#http://www.codeskulptor.org/#user32_GBzOZWqsLI_4.py
 
 # program template for Spaceship
 import simplegui
@@ -108,6 +108,15 @@ class Ship:
         self.radius = info.get_radius()
         self.acc=[0,0]
         self.sound=sound
+
+    def shoot(self,a_missile):
+        a_missile.angle=self.angle
+        a_missile.pos=[self.pos[0]+math.cos(self.angle)*42,self.pos[1]+math.sin(self.angle)*42]
+        a_missile.vel=[self.vel[0]+math.cos(self.angle)*10,self.vel[1]+math.sin(self.angle)*10]
+        a_missile.age=100
+        a_missile.sound.play()
+        
+        
         
     def draw(self,canvas):
         canvas.draw_image(self.image,self.image_center,self.image_size,self.pos,self.image_size,self.angle)
@@ -145,29 +154,22 @@ class Sprite:
         self.lifespan = info.get_lifespan()
         self.animated = info.get_animated()
         self.age = age
-        
-        if sound:
-            sound.rewind()
-            sound.play()
-   
+        self.sound = sound
+      
     def draw(self, canvas):
-        if self.age == 1 or self.age == 2:  
+        if self.age >=1 :  
             canvas.draw_image(self.image,self.image_center,self.image_size,self.pos,self.image_size,self.angle)
     
     def update(self):
         
         
-        if self.age == 1:
-           
+        if self.age >= 1:
+            self.age-=1
             self.pos[0] += self.vel[0]
-            self.pos[1] += self.vel[0]
+            self.pos[1] += self.vel[1]
             self.angle+=self.angle_vel            
-            print self.pos
-        elif self.age == 2:
-            self.pos[0] += self.vel[0]
-            self.pos[1] += self.vel[0]
-            self.angle+=self.angle_vel
-            print self.pos
+
+        
 def draw(canvas):
     global time
     
@@ -187,28 +189,26 @@ def draw(canvas):
     # draw ship and sprites
     my_ship.draw(canvas)
     a_rock.draw(canvas)
-    
-  
     a_missile.draw(canvas)
     
     # update ship and sprites
     my_ship.update()
     a_rock.update()
     a_missile.update()
-            
+   
 
 def keydown(key):
     global angle_vel,thrust
     if key==simplegui.KEY_MAP["left"]:
-        angle_vel -= 0.1
+        angle_vel -= 0.05
         
     elif key==simplegui.KEY_MAP["right"]:
-        angle_vel += 0.1
+        angle_vel += 0.05
         
     elif key==simplegui.KEY_MAP["up"]:
-         my_ship.thrust=True
+        my_ship.thrust=True
     elif key==simplegui.KEY_MAP["space"]:
-         a_missile.age=2
+        my_ship.shoot(a_missile)
 
          
 
@@ -225,13 +225,15 @@ def keyup(key):
     elif key==simplegui.KEY_MAP["space"]:
         missile_fire=False
         
+        
+        
             
 # timer handler that spawns a rock    
 def rock_spawner():
     global a_rock
-    
+   
     a_rock = Sprite([WIDTH*random.random(),HEIGHT*random.random()], [1, 1], 0, 0.05, asteroid_image, asteroid_info,1)
-    a_rock.age=1
+    a_rock.age=100000
 
 # initialize frame
 frame = simplegui.create_frame("Asteroids", WIDTH, HEIGHT)
@@ -240,10 +242,7 @@ frame = simplegui.create_frame("Asteroids", WIDTH, HEIGHT)
 my_ship = Ship([WIDTH / 2, HEIGHT / 2], [0, 0], 0, ship_image, ship_info, ship_thrust_sound)
 a_rock = Sprite([WIDTH / 3, HEIGHT / 3], [0, 0], 0, 0, asteroid_image, asteroid_info, 1)
 
-
-
-a_missile = Sprite([2 * WIDTH / 3, 2 * HEIGHT / 3], [-1,1], 0, 0, missile_image, missile_info, missile_sound)
-
+a_missile = Sprite([2 * WIDTH / 3, 2 * HEIGHT / 3], [0,0], 0, 0, missile_image, missile_info, 0, missile_sound)
 
 # register handlers
 frame.set_draw_handler(draw)
@@ -254,3 +253,4 @@ timer = simplegui.create_timer(1000.0, rock_spawner)
 # get things rolling
 timer.start()
 frame.start()
+soundtrack.play()
