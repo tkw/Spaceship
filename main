@@ -111,8 +111,8 @@ class Ship:
 
     def shoot(self,a_missile):
         a_missile.angle=self.angle
-        a_missile.pos=[self.pos[0]+math.cos(self.angle)*42,self.pos[1]+math.sin(self.angle)*42]
-        a_missile.vel=[self.vel[0]+math.cos(self.angle)*10,self.vel[1]+math.sin(self.angle)*10]
+        a_missile.pos=[self.pos[0]+self.acc[0]*42,self.pos[1]+self.acc[1]*42]
+        a_missile.vel=[self.vel[0]+self.acc[0]*10,self.vel[1]+self.acc[1]*10]
         a_missile.age=100
         a_missile.sound.play()
         
@@ -132,9 +132,9 @@ class Ship:
         self.vel[1]*=0.98
         self.pos[0] += self.vel[0]
         self.pos[1] += self.vel[1]
-        
+        self.acc=[math.cos(self.angle),math.sin(self.angle)]
         if self.thrust==True: 
-            self.acc=[math.cos(self.angle),math.sin(self.angle)]
+           
             self.vel[0]+=self.acc[0]/10
             self.vel[1]+=self.acc[1]/10
             
@@ -181,7 +181,9 @@ def draw(canvas):
     canvas.draw_image(nebula_image, nebula_info.get_center(), nebula_info.get_size(), [WIDTH / 2, HEIGHT / 2], [WIDTH, HEIGHT])
     canvas.draw_image(debris_image, center, size, (wtime - WIDTH / 2, HEIGHT / 2), (WIDTH, HEIGHT))
     canvas.draw_image(debris_image, center, size, (wtime + WIDTH / 2, HEIGHT / 2), (WIDTH, HEIGHT))
-
+    canvas.draw_text("Score : "+str(score), (20, 30), 20, 'White')
+    canvas.draw_text("Lives : "+str(lives), (20, 60), 20, 'White')
+    
     my_ship.angle += angle_vel
      
     border_check()
@@ -232,7 +234,7 @@ def keyup(key):
 def rock_spawner():
     global a_rock
    
-    a_rock = Sprite([WIDTH*random.random(),HEIGHT*random.random()], [1, 1], 0, 0.05, asteroid_image, asteroid_info,1)
+    a_rock = Sprite([WIDTH*random.random(),HEIGHT*random.random()], [random.random()*3,random.random()*3], 0,random.random()*0.1, asteroid_image, asteroid_info,1)
     a_rock.age=100000
 
 # initialize frame
